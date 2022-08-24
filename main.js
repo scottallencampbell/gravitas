@@ -1,10 +1,10 @@
 const G = 6.67408/1e11;
-const zoom = .0000000012;
+const zoom = .000000002;
 const diameterMultiplier = 50;
 const diameterIntercept = -300;
 const diameterAntiZoom = 20000000;
 
-const yearDuration = 12;  // seconds
+const yearDuration = 30;  // seconds
 const frameDelay = 10;
 const showTrack = false;
 const dt = (365.25 * 24 * 60 * 60) / 1000 * frameDelay / yearDuration;  // seconds in an hour
@@ -47,15 +47,16 @@ const setup = function () {
     let moon = new Body('Moon', '#ffffff', 7.346e22, 1.7381e3, earth.x + 4.055e8, earth.y, earth.velocity_x, earth.velocity_y + 970);
     let mars = new Body('Mars', '#aa0000', 6.39e23, 6.779e6, 2.493e11, 0, 0, 21970);
     let jupiter = new Body('Jupiter', '#E2C0B8', 1.89813e27, 1.3982e8, 7.4186e11, 0, 0, 13070);
+    let comet = new Body('Halley\' Comet', '#EFCFFA', 2.2e14, 1e4, -9.2633543328e10, 2.55365362125e11, 26151.38065026183, -16758.86041256348);
 
     bodies.push(sun);
     bodies.push(mercury);
     bodies.push(venus);
     bodies.push(earth);
-    bodies.push(moon);
+    // bodies.push(moon);
     bodies.push(mars);
     bodies.push(jupiter);
-    
+    bodies.push(comet);
     render();
 
     loopTimer = setInterval(loop, frameDelay);
@@ -65,6 +66,9 @@ const render = function () {
     ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
     for (const body of bodies) {
+        if (body.name == 'Haley\' Comet') {
+            console.log(body.x, body.y, body.velocity_x, body.velocity_y);
+        }
         if (showTrack) {
             drawTrack(body);
         }
@@ -79,15 +83,16 @@ const drawBody = function(body) {
 const drawTrack = function(body) {
 
     for (let i = 0; i < body.old_x.length; i++) {
-        drawPoint(body.old_x[i] * zoom, body.old_y[i] * zoom, .2);
+        drawPoint(body.old_x[i] * zoom, body.old_y[i] * zoom, body.color, 1);
     }
 }
 
-const drawPoint = function(x, y, stroke) {
+const drawPoint = function(x, y, stroke, strokeWidth) {
     let width = canvas.clientWidth;
     let height = canvas.clientHeight;
 
-    ctx.fillRect((width + x) / 2, (height + y) / 2, stroke, stroke);
+    ctx.fillStyle = '#555555';
+    ctx.fillRect((width + x) / 2, (height + y) / 2, strokeWidth, strokeWidth);
 }
 
 const drawCircle = function (x, y, radius, fill, stroke, strokeWidth) {
@@ -95,7 +100,7 @@ const drawCircle = function (x, y, radius, fill, stroke, strokeWidth) {
     let width = canvas.clientWidth;
     let height = canvas.clientHeight;
 
-    circle.arc((width + x) / 2, (height + y) / 2, radius, 0, 2 * Math.PI, false);
+    circle.arc((width + x) / 2, (height + y) / 2, radius < 1 ? 1 : radius, 0, 2 * Math.PI, false);
 
     if (fill) {
         ctx.fillStyle = fill;
